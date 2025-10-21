@@ -22,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   String? _lastSyncedPayload;
   bool _isSyncingQrMetadata = false;
+  bool _isGeneratingQrCode = false;
 
   @override
   Widget build(BuildContext context) {
@@ -81,6 +82,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // Check if QR code is generated
         if (user.qrCodeId.isEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _generateQrCode(user);
+          });
           return _buildWaitingForQRCode();
         }
 
@@ -384,6 +388,24 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _generateQrCode(UserModel user) async {
+    if (_isGeneratingQrCode || user.qrCodeId.isNotEmpty) {
+      return;
+    }
+
+    _isGeneratingQrCode = true;
+    try {
+      final payload = await _firestoreService.createQRCodeForUser(user);
+      if (mounted) {
+        _lastSyncedPayload = payload;
+      }
+    } catch (e) {
+      debugPrint('Error generating QR code: $e');
+    } finally {
+      _isGeneratingQrCode = false;
+    }
   }
 
   void _syncQrMetadata(

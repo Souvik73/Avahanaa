@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../models/notification_model.dart';
+import '../utils/qr_payload_builder.dart';
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -66,6 +67,46 @@ class FirestoreService {
     } catch (e) {
       debugPrint('Error getting QR code data: $e');
       return null;
+    }
+  }
+
+  // Create QR code for user when missing
+  Future<String> createQRCodeForUser(UserModel user) async {
+    if (user.qrCodeId.isNotEmpty) {
+      return QrPayloadBuilder.buildPayload(user);
+    }
+
+    try {
+      final qrCodeRef = _firestore.collection('qrCodes').doc();
+      final updatedUser = user.copyWith(qrCodeId: qrCodeRef.id);
+      final metadata = QrPayloadBuilder.buildMetadata(updatedUser);
+      final payload = QrPayloadBuilder.buildPayload(updatedUser);
+      final shareableLink = QrPayloadBuilder.buildShareableLink(updatedUser);
+
+      final batch = _firestore.batch();
+      batch.set(
+        _firestore.collection('users').doc(user.id),
+        {'qrCodeId': updatedUser.qrCodeId},
+        SetOptions(merge: true),
+      );
+      batch.set(
+        qrCodeRef,
+        {
+          'metadata': metadata,
+          'payload': payload,
+          'shareableLink': shareableLink,
+          'userId': user.id,
+          'createdAt': FieldValue.serverTimestamp(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+
+      await batch.commit();
+      return payload;
+    } catch (e) {
+      debugPrint('Error creating QR code for user: $e');
+      rethrow;
     }
   }
 
