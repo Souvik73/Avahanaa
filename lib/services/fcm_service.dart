@@ -83,7 +83,7 @@ class FCMService {
     // Create notification channel for Android
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
       'congestion_free_channel',
-      'CongestionFree Notifications',
+      'Avahanaa Notifications',
       description: 'Notifications for vehicle alerts',
       importance: Importance.high,
       playSound: true,
@@ -127,7 +127,7 @@ class FCMService {
         const NotificationDetails(
           android: AndroidNotificationDetails(
             'congestion_free_channel',
-            'CongestionFree Notifications',
+            'Avahanaa Notifications',
             channelDescription: 'Notifications for vehicle alerts',
             importance: Importance.high,
             priority: Priority.high,

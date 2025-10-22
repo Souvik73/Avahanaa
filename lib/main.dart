@@ -1,10 +1,12 @@
 import 'dart:developer';
 
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'firebase_options.dart';
-import 'screens/splash_screen.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/home_screen.dart';
 import 'services/fcm_service.dart';
 
 // Handle background messages
@@ -24,17 +26,17 @@ void main() async {
   // Initialize FCM
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  runApp(const CongestionFreeApp());
+  runApp(const AvahanaaApp());
 }
 
-class CongestionFreeApp extends StatefulWidget {
-  const CongestionFreeApp({super.key});
+class AvahanaaApp extends StatefulWidget {
+  const AvahanaaApp({super.key});
 
   @override
-  State<CongestionFreeApp> createState() => _CongestionFreeAppState();
+  State<AvahanaaApp> createState() => _AvahanaaAppState();
 }
 
-class _CongestionFreeAppState extends State<CongestionFreeApp> {
+class _AvahanaaAppState extends State<AvahanaaApp> {
   @override
   void initState() {
     super.initState();
@@ -49,7 +51,7 @@ class _CongestionFreeAppState extends State<CongestionFreeApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CongestionFree',
+      title: 'Avahanaa',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -130,7 +132,61 @@ class _CongestionFreeAppState extends State<CongestionFreeApp> {
           color: Colors.white,
         ),
       ),
-      home: const SplashScreen(),
+      home: const AuthGate(),
+    );
+  }
+}
+
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const _SplashLoadingView();
+        }
+
+        if (snapshot.hasData) {
+          return const HomeScreen();
+        }
+
+        return const LoginScreen();
+      },
+    );
+  }
+}
+
+class _SplashLoadingView extends StatelessWidget {
+  const _SplashLoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF2563EB),
+              Color(0xFF10B981),
+            ],
+          ),
+        ),
+        child: Center(
+          child: SizedBox(
+            width: 30,
+            height: 30,
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              strokeWidth: 3,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

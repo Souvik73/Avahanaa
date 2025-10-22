@@ -95,7 +95,7 @@ class QRCodeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      '🚗 CongestionFree',
+                      '🚗 Avahanaa',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -276,8 +276,8 @@ class QRCodeScreen extends StatelessWidget {
 
   void _shareQRCode(String url) {
     Share.share(
-      'Scan my CongestionFree QR code to notify me: $url',
-      subject: 'My CongestionFree QR Code',
+      'Scan my Avahanaa QR code to notify me: $url',
+      subject: 'My Avahanaa QR Code',
     );
   }
 }
