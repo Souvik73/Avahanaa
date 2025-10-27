@@ -41,6 +41,7 @@ dependencies:
   flutter_local_notifications: ^19.5.0
   intl: ^0.20.2
   qr_flutter: ^4.1.0
+  encrypt: ^5.0.3
   share_plus: ^12.0.0
 
 dev_dependencies:
@@ -99,9 +100,4 @@ flutter:
 # see https://flutter.dev/to/font-from-package
 
 flutter_native_splash:
-  color: "#2563EB"
-  color_dark: "#0F172A"
-  android_12:
-    color: "#2563EB"
-    color_dark: "#0F172A"
-  fullscreen: true
+  color: "#42A5F5"
