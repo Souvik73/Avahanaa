@@ -8,6 +8,7 @@ class UserModel {
   final String qrCodeId;
   final DateTime? createdAt;
   final Map<String, dynamic>? carDetails;
+  final bool notificationsEnabled;
 
   UserModel({
     required this.id,
@@ -17,6 +18,7 @@ class UserModel {
     this.qrCodeId = '',
     this.createdAt,
     this.carDetails,
+    this.notificationsEnabled = true,
   });
 
   // Create UserModel from Firestore document
@@ -31,6 +33,7 @@ class UserModel {
       qrCodeId: data['qrCodeId'] ?? '',
       createdAt: (data['createdAt'] as Timestamp?)?.toDate(),
       carDetails: data['carDetails'] as Map<String, dynamic>?,
+      notificationsEnabled: data['notificationsEnabled'] ?? true,
     );
   }
 
@@ -45,6 +48,7 @@ class UserModel {
           ? Timestamp.fromDate(createdAt!)
           : FieldValue.serverTimestamp(),
       'carDetails': carDetails,
+      'notificationsEnabled': notificationsEnabled,
     };
   }
 
@@ -56,6 +60,7 @@ class UserModel {
     String? qrCodeId,
     DateTime? createdAt,
     Map<String, dynamic>? carDetails,
+    bool? notificationsEnabled,
   }) {
     return UserModel(
       id: id,
@@ -65,6 +70,7 @@ class UserModel {
       qrCodeId: qrCodeId ?? this.qrCodeId,
       createdAt: createdAt ?? this.createdAt,
       carDetails: carDetails ?? this.carDetails,
+      notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
     );
   }
 
@@ -94,6 +100,6 @@ class UserModel {
 
   @override
   String toString() {
-    return 'UserModel(id: $id, email: $email, phoneNumber: $phoneNumber, qrCodeId: $qrCodeId)';
+    return 'UserModel(id: $id, email: $email, phoneNumber: $phoneNumber, qrCodeId: $qrCodeId, notificationsEnabled: $notificationsEnabled)';
   }
 }

@@ -37,6 +37,7 @@ class FirestoreService {
     required String userId,
     String? phoneNumber,
     Map<String, dynamic>? carDetails,
+    bool? notificationsEnabled,
   }) async {
     try {
       Map<String, dynamic> updates = {};
@@ -47,6 +48,10 @@ class FirestoreService {
 
       if (carDetails != null) {
         updates['carDetails'] = carDetails;
+      }
+
+      if (notificationsEnabled != null) {
+        updates['notificationsEnabled'] = notificationsEnabled;
       }
 
       await _firestore.collection('users').doc(userId).update(updates);

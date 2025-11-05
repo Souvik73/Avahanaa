@@ -159,6 +159,14 @@ class FCMService {
     return await _fcm.getToken();
   }
 
+  // Refresh and persist current FCM token
+  Future<void> refreshFcmToken() async {
+    final token = await _fcm.getToken();
+    if (token != null) {
+      await _saveFCMToken(token);
+    }
+  }
+
   // Delete FCM token
   Future<void> deleteFCMToken() async {
     final user = _auth.currentUser;

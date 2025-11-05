@@ -64,6 +64,7 @@ class AuthService {
         'fcmToken': '',
         'qrCodeId': '', // Will be set by Cloud Function trigger
         'carDetails': carDetails ?? {},
+        'notificationsEnabled': true,
       });
     } catch (e) {
       log('Error creating user document: $e');

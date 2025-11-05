@@ -5,6 +5,7 @@ import '../services/firestore_service.dart';
 import '../models/user_model.dart';
 import 'auth/login_screen.dart';
 import '../utils/qr_payload_builder.dart';
+import '../services/fcm_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -17,6 +18,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _authService = AuthService();
   final _firestoreService = FirestoreService();
   final _currentUser = FirebaseAuth.instance.currentUser;
+  final _fcmService = FCMService();
+  bool _isUpdatingNotificationPreference = false;
 
   @override
   Widget build(BuildContext context) {
@@ -173,16 +176,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           secondary: const Icon(Icons.qr_code,
                               color: Color(0xFF2563EB)),
                           title: const Text('QR Code Active'),
-                          subtitle: const Text('Allow others to notify you'),
-                          value: true, // TODO: Implement toggle
-                          onChanged: (value) {
-                            // TODO: Implement QR code toggle
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('QR code status updated'),
-                              ),
-                            );
-                          },
+                          subtitle: Text(
+                            _isUpdatingNotificationPreference
+                                ? 'Updating...'
+                                : 'Allow others to notify you',
+                          ),
+                          value: user.notificationsEnabled,
+                          onChanged: _isUpdatingNotificationPreference
+                              ? null
+                              : (value) =>
+                                  _handleNotificationToggle(user, value),
                         ),
                       ],
                     ),
@@ -284,6 +287,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ],
     );
+  }
+
+  Future<void> _handleNotificationToggle(
+      UserModel user, bool isEnabled) async {
+    if (_isUpdatingNotificationPreference || _currentUser == null) return;
+
+    setState(() {
+      _isUpdatingNotificationPreference = true;
+    });
+
+    final messenger = ScaffoldMessenger.of(context);
+
+    try {
+      await _firestoreService.updateUserProfile(
+        userId: _currentUser!.uid,
+        notificationsEnabled: isEnabled,
+      );
+
+      if (user.qrCodeId.isNotEmpty) {
+        await _firestoreService.toggleQRCodeStatus(
+          qrCodeId: user.qrCodeId,
+          isActive: isEnabled,
+        );
+      }
+
+      if (isEnabled) {
+        await _fcmService.refreshFcmToken();
+      } else {
+        await _fcmService.deleteFCMToken();
+      }
+
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              isEnabled
+                  ? 'QR code notifications enabled'
+                  : 'QR code notifications disabled',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Failed to update QR code status: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUpdatingNotificationPreference = false;
+        });
+      }
+    }
   }
 
   void _showEditCarDialog(UserModel user) {
