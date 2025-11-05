@@ -8,6 +8,7 @@ import 'firebase_options.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'services/fcm_service.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 // Handle background messages
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -16,7 +17,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase
   await Firebase.initializeApp(
@@ -25,6 +26,7 @@ void main() async {
 
   // Initialize FCM
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   runApp(const AvahanaaApp());
 }
@@ -40,6 +42,7 @@ class _AvahanaaAppState extends State<AvahanaaApp> {
   @override
   void initState() {
     super.initState();
+    FlutterNativeSplash.remove();
     _initializeFCM();
   }
 
