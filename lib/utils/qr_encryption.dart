@@ -24,10 +24,14 @@ class QrEncryption {
     encrypt.AES(_key, mode: encrypt.AESMode.cbc, padding: 'PKCS7'),
   );
 
-  static String encryptCarDetails(Map<String, dynamic> carDetails) {
-    final payload = jsonEncode(carDetails);
-    final result = _encrypter.encrypt(payload, iv: _iv);
+  static String encryptPayload(Map<String, dynamic> payload) {
+    final serialised = jsonEncode(payload);
+    final result = _encrypter.encrypt(serialised, iv: _iv);
     return result.base64;
+  }
+
+  static String encryptCarDetails(Map<String, dynamic> carDetails) {
+    return encryptPayload(carDetails);
   }
 
   static encrypt.Key _buildKey(String rawKey) {

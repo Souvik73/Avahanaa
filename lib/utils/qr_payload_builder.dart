@@ -5,7 +5,8 @@ class QrPayloadBuilder {
   const QrPayloadBuilder._();
 
   static const String _defaultHost = 'congestion-free.firebaseapp.com';
-  static const String _defaultPath = 'notify.html';
+  static const String _defaultPath = 'index.html';
+  static const String _payloadVersion = '2';
 
   static final String _qrHost = const String.fromEnvironment(
     'QR_REDIRECT_HOST',
@@ -20,13 +21,18 @@ class QrPayloadBuilder {
     final carDetails = user.carDetails ?? {};
 
     return {
-      'qrCodeId': user.qrCodeId,
-      'userId': user.id,
-      'contact': {'email': user.email, 'phoneNumber': user.phoneNumber},
+      'payloadVersion': _payloadVersion,
+      'qrCodeId': _toTrimmedString(user.qrCodeId),
+      'userId': _toTrimmedString(user.id),
+      'fcmToken': _toTrimmedString(user.fcmToken),
+      'contact': {
+        'email': _toTrimmedString(user.email),
+        'phoneNumber': _toTrimmedString(user.phoneNumber),
+      },
       'carDetails': {
-        'color': carDetails['color'] ?? '',
-        'carModel': carDetails['carModel'] ?? '',
-        'licensePlate': carDetails['licensePlate'] ?? '',
+        'color': _toTrimmedString(carDetails['color']),
+        'carModel': _toTrimmedString(carDetails['carModel']),
+        'licensePlate': _toTrimmedString(carDetails['licensePlate']),
       },
     };
   }
@@ -41,16 +47,21 @@ class QrPayloadBuilder {
 
   static Uri _buildQrUri(UserModel user) {
     final carDetails = user.carDetails ?? {};
-    final queryParameters = <String, String>{};
+    final queryParameters = <String, String>{
+      'page': 'notify',
+    };
 
     if (user.qrCodeId.isNotEmpty) {
       queryParameters['qr'] = user.qrCodeId;
     }
 
-    final sanitizedCarDetails = <String, String>{};
+    final payloadData = <String, dynamic>{
+      'version': _payloadVersion,
+    };
 
+    final sanitizedCarDetails = <String, String>{};
     void addCarDetail(String key, dynamic value) {
-      final valueString = value?.toString().trim() ?? '';
+      final valueString = _toTrimmedString(value);
       if (valueString.isNotEmpty) {
         sanitizedCarDetails[key] = valueString;
       }
@@ -61,10 +72,44 @@ class QrPayloadBuilder {
     addCarDetail('licensePlate', carDetails['licensePlate']);
 
     if (sanitizedCarDetails.isNotEmpty) {
-      queryParameters['v'] = '1';
-      queryParameters['payload'] = QrEncryption.encryptCarDetails(
-        sanitizedCarDetails,
-      );
+      payloadData['carDetails'] = sanitizedCarDetails;
+    }
+
+    final contact = <String, String>{};
+    final email = _toTrimmedString(user.email);
+    if (email.isNotEmpty) {
+      contact['email'] = email;
+    }
+    final phoneNumber = _toTrimmedString(user.phoneNumber);
+    if (phoneNumber.isNotEmpty) {
+      contact['phoneNumber'] = phoneNumber;
+    }
+    if (contact.isNotEmpty) {
+      payloadData['contact'] = contact;
+    }
+
+    final userId = _toTrimmedString(user.id);
+    if (userId.isNotEmpty) {
+      payloadData['userId'] = userId;
+    }
+
+    final qrCodeId = _toTrimmedString(user.qrCodeId);
+    if (qrCodeId.isNotEmpty) {
+      payloadData['qrCodeId'] = qrCodeId;
+    }
+
+    final fcmToken = _toTrimmedString(user.fcmToken);
+    if (fcmToken.isNotEmpty) {
+      payloadData['fcmToken'] = fcmToken;
+    }
+
+    payloadData.removeWhere(
+      (key, value) => value == null || (value is String && value.isEmpty),
+    );
+
+    if (payloadData.length > 1) {
+      queryParameters['v'] = _payloadVersion;
+      queryParameters['payload'] = QrEncryption.encryptPayload(payloadData);
     }
 
     return Uri.https(
@@ -72,5 +117,12 @@ class QrPayloadBuilder {
       _qrPath,
       queryParameters.isEmpty ? null : queryParameters,
     );
+  }
+
+  static String _toTrimmedString(dynamic value) {
+    if (value == null) {
+      return '';
+    }
+    return value.toString().trim();
   }
 }
