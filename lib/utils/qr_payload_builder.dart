@@ -4,7 +4,7 @@ import 'qr_encryption.dart';
 class QrPayloadBuilder {
   const QrPayloadBuilder._();
 
-  static const String _defaultHost = 'congestion-free.firebaseapp.com';
+  static const String _defaultHost = 'avahanaa.com';
   static const String _defaultPath = 'index.html';
   static const String _payloadVersion = '2';
 

@@ -45,7 +45,7 @@ class DefaultFirebaseOptions {
     appId: '1:76007537447:web:57a848570f39091b5a4702',
     messagingSenderId: '76007537447',
     projectId: 'congestion-free',
-    authDomain: 'congestion-free.firebaseapp.com',
+    authDomain: 'avahanaa.com',
     storageBucket: 'congestion-free.firebasestorage.app',
     measurementId: 'G-5PNGPJZL6D',
   );
@@ -81,7 +81,7 @@ class DefaultFirebaseOptions {
     appId: '1:76007537447:web:986cf5646199f1e25a4702',
     messagingSenderId: '76007537447',
     projectId: 'congestion-free',
-    authDomain: 'congestion-free.firebaseapp.com',
+    authDomain: 'avahanaa.com',
     storageBucket: 'congestion-free.firebasestorage.app',
     measurementId: 'G-1P170L5YK7',
   );

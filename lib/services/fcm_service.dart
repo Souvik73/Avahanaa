@@ -132,7 +132,7 @@ class FCMService {
             importance: Importance.high,
             priority: Priority.high,
             playSound: true,
-            icon: '@mipmap/ic_launcher',
+            icon: '@mipmap/launcher_icon',
           ),
           iOS: DarwinNotificationDetails(
             presentAlert: true,
