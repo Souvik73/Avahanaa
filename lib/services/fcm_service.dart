@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:alarm/alarm.dart' as alarm;
 
 class FCMService {
   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
@@ -115,34 +116,10 @@ class FCMService {
   void _handleForegroundMessage(RemoteMessage message) {
     debugPrint('Foreground message received: ${message.messageId}');
 
-    RemoteNotification? notification = message.notification;
-    AndroidNotification? android = message.notification?.android;
-
-    // Display notification when app is in foreground
-    if (notification != null && android != null) {
-      _localNotifications.show(
-        notification.hashCode,
-        notification.title,
-        notification.body,
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'congestion_free_channel',
-            'Avahanaa Notifications',
-            channelDescription: 'Notifications for vehicle alerts',
-            importance: Importance.high,
-            priority: Priority.high,
-            playSound: true,
-            icon: '@mipmap/launcher_icon',
-          ),
-          iOS: DarwinNotificationDetails(
-            presentAlert: true,
-            presentBadge: true,
-            presentSound: true,
-          ),
-        ),
-        payload: message.data['notificationId'],
-      );
-    }
+    FCMService.showAlarmForMessage(message).catchError((e) {
+      debugPrint('Error showing alarm, falling back to local notification: $e');
+      _showLocalNotification(message);
+    });
   }
 
   // Handle notification tap (when app is in background)
@@ -190,5 +167,77 @@ class FCMService {
   // Unsubscribe from topic
   Future<void> unsubscribeFromTopic(String topic) async {
     await _fcm.unsubscribeFromTopic(topic);
+  }
+
+  // Display a high-attention alarm using the alarm plugin.
+  static Future<void> showAlarmForMessage(RemoteMessage message) async {
+    final title = message.notification?.title ??
+        message.data['title'] ??
+        'Vehicle alert';
+    final body = message.notification?.body ??
+        message.data['body'] ??
+        'Someone is trying to notify you about your vehicle.';
+
+    final now = DateTime.now();
+    final rawId = message.messageId?.hashCode ??
+        message.sentTime?.millisecondsSinceEpoch ??
+        now.millisecondsSinceEpoch;
+    final alarmId = _normalizeAlarmId(rawId);
+
+    final alarmSettings = alarm.AlarmSettings(
+      id: alarmId,
+      dateTime: now.add(const Duration(seconds: 1)),
+      assetAudioPath: 'assets/audio/avahanaa_alarm.wav',
+      volumeSettings: const alarm.VolumeSettings.fixed(volume: 1.0),
+      notificationSettings: alarm.NotificationSettings(
+        title: title,
+        body: body,
+        stopButton: 'Stop',
+      ),
+      loopAudio: true,
+      vibrate: true,
+      androidFullScreenIntent: true,
+      allowAlarmOverlap: true,
+      payload: message.data['notificationId'] ?? message.messageId,
+    );
+
+    await alarm.Alarm.set(alarmSettings: alarmSettings);
+  }
+
+  // Fallback local notification if alarm cannot be scheduled.
+  void _showLocalNotification(RemoteMessage message) {
+    final notification = message.notification;
+    final android = message.notification?.android;
+
+    if (notification == null || android == null) return;
+
+    _localNotifications.show(
+      notification.hashCode,
+      notification.title,
+      notification.body,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'congestion_free_channel',
+          'Avahanaa Notifications',
+          channelDescription: 'Notifications for vehicle alerts',
+          importance: Importance.high,
+          priority: Priority.high,
+          playSound: true,
+          icon: '@mipmap/launcher_icon',
+        ),
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      payload: message.data['notificationId'],
+    );
+  }
+
+  static int _normalizeAlarmId(int rawId) {
+    final safeId = rawId.abs() % 2147480000;
+    if (safeId == 0 || safeId == 1) return 2;
+    return safeId;
   }
 }

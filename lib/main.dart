@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:alarm/alarm.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -10,14 +11,27 @@ import 'screens/home_screen.dart';
 import 'services/fcm_service.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
-// Handle background messages
+// Handle background messages (must be a top-level, entry-point function).
+@pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await Alarm.init();
+  try {
+    await FCMService.showAlarmForMessage(message);
+  } catch (e, stack) {
+    log('Error scheduling alarm for background message: $e', error: e, stackTrace: stack);
+  }
   log('Handling background message: ${message.messageId}');
 }
 
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize alarm plugin early so alarms can be scheduled from notifications.
+  await Alarm.init();
 
   // Initialize Firebase
   await Firebase.initializeApp(
