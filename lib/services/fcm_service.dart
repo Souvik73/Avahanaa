@@ -59,7 +59,7 @@ class FCMService {
   // Initialize local notifications for foreground display
   Future<void> _initializeLocalNotifications() async {
     const AndroidInitializationSettings androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@mipmap/launcher_icon');
 
     const DarwinInitializationSettings iosSettings =
         DarwinInitializationSettings(
@@ -201,7 +201,10 @@ class FCMService {
       payload: message.data['notificationId'] ?? message.messageId,
     );
 
-    await alarm.Alarm.set(alarmSettings: alarmSettings);
+    final scheduled = await alarm.Alarm.set(alarmSettings: alarmSettings);
+    if (!scheduled) {
+      throw Exception('Failed to schedule alarm');
+    }
   }
 
   // Fallback local notification if alarm cannot be scheduled.
