@@ -223,6 +223,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             version: QrVersions.auto,
                             size: 200,
                             backgroundColor: Colors.white,
+                            dataModuleStyle: const QrDataModuleStyle(
+                              dataModuleShape: QrDataModuleShape.square,
+                              color: Colors.black,
+                            ),
+                            errorCorrectionLevel: QrErrorCorrectLevel.L,
+                            gapless: true,
+                            eyeStyle: QrEyeStyle(
+                              eyeShape: QrEyeShape.square,
+                              color: const Color(0xFF2563EB),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),

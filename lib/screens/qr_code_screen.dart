@@ -46,10 +46,7 @@ class QRCodeScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.info_outline,
-                        color: Color(0xFF2563EB),
-                      ),
+                      const Icon(Icons.info_outline, color: Color(0xFF2563EB)),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -91,7 +88,16 @@ class QRCodeScreen extends StatelessWidget {
                       version: QrVersions.auto,
                       size: 280,
                       backgroundColor: Colors.white,
-                      errorCorrectionLevel: QrErrorCorrectLevel.H,
+                      errorCorrectionLevel: QrErrorCorrectLevel.L,
+                      gapless: true,
+                      eyeStyle: QrEyeStyle(
+                        eyeShape: QrEyeShape.square,
+                        color: const Color(0xFF2563EB),
+                      ),
+                      dataModuleStyle: const QrDataModuleStyle(
+                        dataModuleShape: QrDataModuleShape.square,
+                        color: Colors.black87,
+                      ),
                     ),
                     const SizedBox(height: 16),
                     const Text(
@@ -105,10 +111,7 @@ class QRCodeScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       'Scan to notify owner',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                     if (licensePlate.isNotEmpty) ...[
                       const SizedBox(height: 8),
@@ -125,10 +128,7 @@ class QRCodeScreen extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         carDescriptor,
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[700],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -148,8 +148,7 @@ class QRCodeScreen extends StatelessWidget {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton.icon(
-                      onPressed: () =>
-                          _copyToClipboard(context, shareableLink),
+                      onPressed: () => _copyToClipboard(context, shareableLink),
                       icon: const Icon(Icons.copy),
                       label: const Text('Copy QR Link'),
                     ),
@@ -193,10 +192,7 @@ class QRCodeScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _buildInstruction(
-                        '1',
-                        'Screenshot this QR code',
-                      ),
+                      _buildInstruction('1', 'Screenshot this QR code'),
                       _buildInstruction(
                         '2',
                         'Print it on white paper (A5 size recommended)',
@@ -252,10 +248,7 @@ class QRCodeScreen extends StatelessWidget {
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 text,
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Color(0xFF1F2937),
-                ),
+                style: const TextStyle(fontSize: 15, color: Color(0xFF1F2937)),
               ),
             ),
           ),

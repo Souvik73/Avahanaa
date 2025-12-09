@@ -1,5 +1,4 @@
 import '../models/user_model.dart';
-import 'qr_encryption.dart';
 
 class QrPayloadBuilder {
   const QrPayloadBuilder._();
@@ -46,71 +45,18 @@ class QrPayloadBuilder {
   }
 
   static Uri _buildQrUri(UserModel user) {
-    final carDetails = user.carDetails ?? {};
     final queryParameters = <String, String>{
+      // Keep the redirect page hint but otherwise minimise the query to shrink the QR payload.
       'page': 'notify',
     };
 
-    if (user.qrCodeId.isNotEmpty) {
-      queryParameters['qr'] = user.qrCodeId;
-    }
-
-    final payloadData = <String, dynamic>{
-      'version': _payloadVersion,
-    };
-
-    final sanitizedCarDetails = <String, String>{};
-    void addCarDetail(String key, dynamic value) {
-      final valueString = _toTrimmedString(value);
-      if (valueString.isNotEmpty) {
-        sanitizedCarDetails[key] = valueString;
-      }
-    }
-
-    addCarDetail('color', carDetails['color']);
-    addCarDetail('carModel', carDetails['carModel']);
-    addCarDetail('licensePlate', carDetails['licensePlate']);
-
-    if (sanitizedCarDetails.isNotEmpty) {
-      payloadData['carDetails'] = sanitizedCarDetails;
-    }
-
-    final contact = <String, String>{};
-    final email = _toTrimmedString(user.email);
-    if (email.isNotEmpty) {
-      contact['email'] = email;
-    }
-    final phoneNumber = _toTrimmedString(user.phoneNumber);
-    if (phoneNumber.isNotEmpty) {
-      contact['phoneNumber'] = phoneNumber;
-    }
-    if (contact.isNotEmpty) {
-      payloadData['contact'] = contact;
-    }
-
-    final userId = _toTrimmedString(user.id);
-    if (userId.isNotEmpty) {
-      payloadData['userId'] = userId;
-    }
-
     final qrCodeId = _toTrimmedString(user.qrCodeId);
     if (qrCodeId.isNotEmpty) {
-      payloadData['qrCodeId'] = qrCodeId;
+      queryParameters['qr'] = qrCodeId;
     }
 
-    final fcmToken = _toTrimmedString(user.fcmToken);
-    if (fcmToken.isNotEmpty) {
-      payloadData['fcmToken'] = fcmToken;
-    }
-
-    payloadData.removeWhere(
-      (key, value) => value == null || (value is String && value.isEmpty),
-    );
-
-    if (payloadData.length > 1) {
-      queryParameters['v'] = _payloadVersion;
-      queryParameters['payload'] = QrEncryption.encryptPayload(payloadData);
-    }
+    // Carry a lightweight version flag for future compatibility without the heavy encrypted payload.
+    queryParameters['v'] = _payloadVersion;
 
     return Uri.https(
       _qrHost,
