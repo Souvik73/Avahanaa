@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:76007537447:android:031310cc19281fb65a4702",
+        "mobilesdk_app_id": "1:76007537447:android:66324bbac6e4fd575a4702",
         "android_client_info": {
-          "package_name": "com.example.congestion_free"
+          "package_name": "com.avahanaa.congestion_free"
         }
       },
       "oauth_client": [],

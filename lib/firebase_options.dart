@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCAcPArEa-Ej3gMDYaWJx5zlHYU7Mu8Gf4',
-    appId: '1:76007537447:android:031310cc19281fb65a4702',
+    appId: '1:76007537447:android:66324bbac6e4fd575a4702',
     messagingSenderId: '76007537447',
     projectId: 'congestion-free',
     storageBucket: 'congestion-free.firebasestorage.app',
@@ -60,29 +60,30 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAhdIgfzdE7t13IhNCQHNgv82hCJckpyNE',
-    appId: '1:76007537447:ios:73061ea3266dc0f75a4702',
+    appId: '1:76007537447:ios:363330c166f9ac3a5a4702',
     messagingSenderId: '76007537447',
     projectId: 'congestion-free',
     storageBucket: 'congestion-free.firebasestorage.app',
-    iosBundleId: 'com.example.congestionFree',
+    iosBundleId: 'com.example.avahanaa',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyAhdIgfzdE7t13IhNCQHNgv82hCJckpyNE',
-    appId: '1:76007537447:ios:73061ea3266dc0f75a4702',
+    appId: '1:76007537447:ios:363330c166f9ac3a5a4702',
     messagingSenderId: '76007537447',
     projectId: 'congestion-free',
     storageBucket: 'congestion-free.firebasestorage.app',
-    iosBundleId: 'com.example.congestionFree',
+    iosBundleId: 'com.example.avahanaa',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyDVB09QVh9YizQ7p1YXGcQWQ_43NV6f0SE',
-    appId: '1:76007537447:web:986cf5646199f1e25a4702',
+    appId: '1:76007537447:web:25b02a6b02cb65675a4702',
     messagingSenderId: '76007537447',
     projectId: 'congestion-free',
-    authDomain: 'avahanaa.com',
+    authDomain: 'congestion-free.firebaseapp.com',
     storageBucket: 'congestion-free.firebasestorage.app',
-    measurementId: 'G-1P170L5YK7',
+    measurementId: 'G-5N2G6BNKS6',
   );
+
 }
