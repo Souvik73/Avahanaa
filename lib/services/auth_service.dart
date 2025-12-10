@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -39,6 +40,7 @@ class AuthService {
           phoneNumber: phoneNumber,
           carDetails: carDetails,
         );
+        await _updateFcmTokenForUser(userCredential.user!.uid);
       }
 
       return userCredential;
@@ -83,6 +85,9 @@ class AuthService {
         email: email,
         password: password,
       );
+      if (userCredential.user != null) {
+        await _updateFcmTokenForUser(userCredential.user!.uid);
+      }
       return userCredential;
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
@@ -186,6 +191,26 @@ class AuthService {
         return 'Please sign in again to complete this action.';
       default:
         return 'Authentication failed: ${e.message ?? "Unknown error"}';
+    }
+  }
+
+  Future<void> _updateFcmTokenForUser(String userId) async {
+    try {
+      final token = await FirebaseMessaging.instance.getToken();
+      if (token == null || token.isEmpty) {
+        log('FCM token not available at login/signup');
+        return;
+      }
+      await _firestore.collection('users').doc(userId).set(
+        {
+          'fcmToken': token,
+          'fcmTokenUpdatedAt': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+      log('FCM token saved for user $userId');
+    } catch (e) {
+      log('Error updating FCM token for user $userId: $e');
     }
   }
 }
