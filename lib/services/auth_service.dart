@@ -153,25 +153,32 @@ class AuthService {
   }
 
   // Delete account
-  Future<void> deleteAccount() async {
+  Future<void> deleteAccount({AuthCredential? credential}) async {
     try {
-      final userId = currentUser?.uid;
-      if (userId != null) {
-        final userRef = _firestore.collection('users').doc(userId);
-        final userDoc = await userRef.get();
-        final qrCodeId = userDoc.data()?['qrCodeId'];
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw 'No user is currently signed in.';
+      }
 
-        // Delete user document
-        await userRef.delete();
+      if (credential != null) {
+        await user.reauthenticateWithCredential(credential);
+      }
 
-        // Delete QR code document
-        if (qrCodeId != null && qrCodeId.isNotEmpty) {
-          await _firestore.collection('qrCodes').doc(qrCodeId).delete();
-        }
+      final userRef = _firestore.collection('users').doc(user.uid);
+      final userDoc = await userRef.get();
+      final qrCodeId = userDoc.data()?['qrCodeId'];
+
+      // Delete user document
+      await userRef.delete();
+
+      // Delete QR code document
+      if (qrCodeId != null && qrCodeId.isNotEmpty) {
+        await _firestore.collection('qrCodes').doc(qrCodeId).delete();
       }
 
       // Delete auth account
-      await _auth.currentUser?.delete();
+      await user.delete();
+      await _auth.signOut();
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
     } catch (e) {
