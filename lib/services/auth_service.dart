@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -108,10 +109,20 @@ class AuthService {
   // Reset password
   Future<void> resetPassword({required String email}) async {
     try {
-      await _auth.sendPasswordResetEmail(email: email);
+      final projectId = Firebase.app().options.projectId;
+      final actionCodeSettings = ActionCodeSettings(
+        url: 'https://$projectId.firebaseapp.com',
+        handleCodeInApp: false,
+      );
+      await _auth.sendPasswordResetEmail(
+        email: email,
+        actionCodeSettings: actionCodeSettings,
+      );
     } on FirebaseAuthException catch (e) {
+      log('Password reset failed (${e.code}): ${e.message}');
       throw _handleAuthException(e);
     } catch (e) {
+      log('Password reset failed: $e');
       throw 'Failed to send password reset email. Please try again.';
     }
   }
