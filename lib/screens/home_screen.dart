@@ -278,8 +278,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           _buildStatItem(
                             icon: Icons.qr_code,
                             label: 'QR Status',
-                            value: 'Active',
-                            color: const Color(0xFF10B981),
+                            value:
+                                user.notificationsEnabled ? 'Active' : 'Inactive',
+                            color: user.notificationsEnabled
+                                ? const Color(0xFF10B981)
+                                : const Color(0xFFEF4444),
                           ),
                         ],
                       ),
