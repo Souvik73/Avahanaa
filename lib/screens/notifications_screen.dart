@@ -391,6 +391,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final confirm = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
           title: const Text('Clear All Notifications'),
           content:
               const Text('Are you sure you want to delete all notifications?'),
